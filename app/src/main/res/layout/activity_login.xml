@@ -19,7 +19,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="256dp"
         android:width="300dp"
-        android:hint="Username" />
+        android:hint="@string/username"
+        android:text="@string/hintusername" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -31,12 +32,13 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="56dp"
         android:width="300dp"
-        android:hint="Password" />
+        android:hint="@string/password"
+        android:text="@string/hintpassword" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login"
+        android:text="@string/login"
         android:id="@+id/buttonLogin"
         android:layout_below="@+id/editTextPassword"
         android:layout_centerHorizontal="true"
@@ -52,5 +54,6 @@
         android:layout_marginTop="64dp"
         android:src="@drawable/logowithtext"
         android:layout_marginLeft="32dp"
-        android:adjustViewBounds="true" />
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/wayuhealth_logo" />
 </RelativeLayout>

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">WayuHealth</string>
+    <string name="hintusername">Username</string>
+    <string name="hintpassword">Password</string>
+    <string name="login">Login</string>
+    <string name="wayuhealth_logo">WayuHealth Logo</string>
 </resources>
