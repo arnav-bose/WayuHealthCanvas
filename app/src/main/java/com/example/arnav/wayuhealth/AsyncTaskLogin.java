@@ -6,19 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.appspot.wayuconnectdev.loginWC.LoginWC;
+import com.appspot.wayuconnectdev.loginWC.LoginWC.Patsignin;
 import com.google.api.client.http.HttpResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-
-import com.appspot.firststepgaedev.login.Login;
-import com.appspot.firststepgaedev.login.Login.Signin;
 
 /**
  * Created by Arnav on 01/06/2016.
@@ -53,15 +51,15 @@ public class AsyncTaskLogin extends AsyncTask<String, Void, JSONObject> {
         username = params[0];
         password = params[1];
 
-        Login apiServiceHandle = AppConstants.getApiServiceHandle();
+        LoginWC apiServiceHandle = AppConstants.getApiServiceHandle();
 
         try{
-            Signin signin = apiServiceHandle.signin();
-            signin.setEmail(username).setPassword(password).setSource("android");
+            Patsignin signin = apiServiceHandle.patsignin();
+            signin.setEmail(username).setPassword(password).setDeviceType("android");
 
             HttpResponse httpResponse = signin.executeUnparsed();
             String response = httpResponse.parseAsString();
-            Log.d("FALCON: RESPONSE: ", response);
+            Log.d("FALCON: JSON RESPONSE: ", response);
 
             //JSON Parsing
             JSONObject jsonObject = new JSONObject(response);

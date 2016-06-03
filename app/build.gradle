@@ -24,9 +24,9 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.google.android.gms:play-services-gcm:7.0.0'
-    compile files('libs/login-v1-1.20.0-SNAPSHOT.jar')
     compile files('libs/google-http-client-android-1.17.0-rc.jar')
     compile files('libs/google-http-client-1.17.0-rc.jar')
     compile files('libs/google-api-client-android-1.15.0-rc.jar')
     compile files('libs/google-api-client-1.17.0-rc.jar')
+    compile files('libs/loginWC-v1-1.22.0-SNAPSHOT.jar')
 }

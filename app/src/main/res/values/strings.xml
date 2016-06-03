@@ -4,4 +4,7 @@
     <string name="hintpassword">Password</string>
     <string name="login">Login</string>
     <string name="wayuhealth_logo">WayuHealth Logo</string>
+    <string name="not_signed_up_register_here"><u>Not Signed Up? Register Here</u></string>
+    <string name="have_account_login"><u>Have Account? Login</u></string>
+    <string name="congratulations_you_have_successfully_registered">Congratulations! You have Successfully Registered.<br>Welcome to WayuHealth</br></string>
 </resources>

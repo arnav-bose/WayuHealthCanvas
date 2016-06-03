@@ -21,7 +21,8 @@
         </activity>
         <activity android:name=".Login" />
         <activity android:name=".Dashboard" />
-        <activity android:name=".Register"></activity>
+        <activity android:name=".Register" />
+        <activity android:name=".Acknowledgement"></activity>
     </application>
 
 </manifest>

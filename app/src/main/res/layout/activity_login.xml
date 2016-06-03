@@ -19,8 +19,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="256dp"
         android:width="300dp"
-        android:hint="@string/username"
-        android:text="@string/hintusername" />
+        android:hint="@string/hintusername" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -30,10 +29,9 @@
         android:id="@+id/editTextPassword"
         android:layout_below="@+id/editTextUsername"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="16dp"
         android:width="300dp"
-        android:hint="@string/password"
-        android:text="@string/hintpassword" />
+        android:hint="@string/hintpassword" />
 
     <Button
         android:layout_width="wrap_content"
@@ -56,4 +54,14 @@
         android:layout_marginLeft="32dp"
         android:adjustViewBounds="true"
         android:contentDescription="@string/wayuhealth_logo" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/not_signed_up_register_here"
+        android:id="@+id/textViewLoginRegister"
+        android:layout_below="@+id/buttonLogin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="26dp" />
 </RelativeLayout>

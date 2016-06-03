@@ -7,7 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.appspot.firststepgaedev.login.Login;
+import com.appspot.wayuconnectdev.loginWC.LoginWC;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpResponseException;
 
@@ -41,9 +41,11 @@ public class AsyncTaskCheckSessionKey extends AsyncTask <Void, Void, JSONObject>
     protected JSONObject doInBackground(Void... params) {
         JSONObject jsonObject = null;
         try {
-            Login apiServiceHandle = AppConstants.getApiServiceHandle();
+            LoginWC apiServiceHandle = AppConstants.getApiServiceHandle();
             try {
-                Login.Authenticate authEnticate = apiServiceHandle.authenticate().setEmail(email).setSessionKey(session_key);
+                LoginWC.Authenticate authEnticate = apiServiceHandle.authenticate()
+                        .setEmail(email)
+                        .setSessionKey(session_key);
                 HttpResponse httpResponse = authEnticate.executeUnparsed();
                 String response = httpResponse.parseAsString();
 
@@ -70,7 +72,20 @@ public class AsyncTaskCheckSessionKey extends AsyncTask <Void, Void, JSONObject>
                 activityCheckSessionKey.finish();
             }
             else{
-                //TODO: Handle other responses
+                Thread threadSessionKeyExpire = new Thread(){
+                    public void run(){
+                        activityCheckSessionKey.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(contextCheckSessionKey, "Session Key Expired. Please Login Again.", Toast.LENGTH_LONG).show();
+                                Intent i = new Intent(activityCheckSessionKey, Login.class);
+                                activityCheckSessionKey.startActivity(i);
+                                activityCheckSessionKey.finish();
+                            }
+                        });
+
+                    }
+                };
             }
 
         } catch (JSONException e) {

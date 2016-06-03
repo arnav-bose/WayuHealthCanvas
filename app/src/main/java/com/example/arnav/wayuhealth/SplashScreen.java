@@ -57,7 +57,9 @@ public class SplashScreen extends AppCompatActivity {
                             finish();
                         }
                         else if(email.equalsIgnoreCase("") || email.equalsIgnoreCase("") && sessionKey.equalsIgnoreCase("")){
-                            //TODO: Register Activity
+                            Intent i = new Intent(SplashScreen.this, Register.class);
+                            startActivity(i);
+                            finish();
                         }
                         else{
                             bundleAuthenticate.putString("email", email);

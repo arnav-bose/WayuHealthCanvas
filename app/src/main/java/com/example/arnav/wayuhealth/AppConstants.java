@@ -6,7 +6,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 
-import com.appspot.firststepgaedev.login.Login;
+import com.appspot.wayuconnectdev.loginWC.LoginWC;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -45,9 +45,9 @@ public class AppConstants {
 	/**
 	 * First Step Login api service handle to access the API.
 	 */
-	public static Login getApiServiceHandle() {
+	public static LoginWC getApiServiceHandle() {
 		// Use a builder to help formulate the API request.
-		Login.Builder loginFS = new Login.Builder(AppConstants.HTTP_TRANSPORT,
+		LoginWC.Builder loginFS = new LoginWC.Builder(AppConstants.HTTP_TRANSPORT,
 				AppConstants.JSON_FACTORY,null);
 
 		//loginFS.setRootUrl("http://182.64.105.236:8080/_ah/api/");
