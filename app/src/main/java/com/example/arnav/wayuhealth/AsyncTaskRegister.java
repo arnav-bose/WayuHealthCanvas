@@ -20,7 +20,7 @@ import java.io.IOException;
 /**
  * Created by Arnav on 03/06/2016.
  */
-public class RegisterTask extends AsyncTask<Void, JSONObject, JSONObject> {
+public class AsyncTaskRegister extends AsyncTask<Void, JSONObject, JSONObject> {
 
     Context contextRegister;
     Activity activityRegister;
@@ -29,7 +29,7 @@ public class RegisterTask extends AsyncTask<Void, JSONObject, JSONObject> {
     private final String KEY_ERROR = "error";
     ProgressDialog progressDialogRegister;
 
-    RegisterTask(Context context, Bundle bundle){
+    AsyncTaskRegister(Context context, Bundle bundle){
         this.contextRegister = context;
         activityRegister = (Activity)context;
 

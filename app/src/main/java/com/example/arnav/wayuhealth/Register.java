@@ -1,7 +1,6 @@
 package com.example.arnav.wayuhealth;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -90,7 +89,7 @@ public class Register extends AppCompatActivity implements AdapterView.OnItemSel
                     bundleUserDetails.putString("password", password);
                     bundleUserDetails.putString("country", String.valueOf(spinnerRegisterCountry.getSelectedItem()));
                     bundleUserDetails.putString("state", String.valueOf(spinnerRegisterState.getSelectedItem()));
-                    RegisterTask registerTask = new RegisterTask(Register.this, bundleUserDetails);
+                    AsyncTaskRegister registerTask = new AsyncTaskRegister(Register.this, bundleUserDetails);
                     registerTask.execute();
                 }
 
