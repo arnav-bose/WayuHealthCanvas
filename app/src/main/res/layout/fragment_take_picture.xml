@@ -1,0 +1,35 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Take Picture"
+        android:id="@+id/buttonTakePicture"
+        android:layout_marginTop="16dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageViewPicture"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/buttonTakePicture"
+        android:layout_marginTop="32dp"
+        android:maxHeight="450dp"
+        android:maxWidth="300dp"
+        android:adjustViewBounds="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Upload"
+        android:id="@+id/buttonUploadImage"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/buttonTakePicture"
+        android:layout_alignEnd="@+id/buttonTakePicture" />
+</RelativeLayout>

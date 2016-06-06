@@ -12,7 +12,9 @@ import android.widget.Toast;
 import com.appspot.wayuconnectdev.loginWC.LoginWC;
 import com.appspot.wayuconnectdev.loginWC.LoginWC.Patsignin;
 import com.google.api.client.http.HttpResponse;
+import com.google.api.client.json.JsonParser;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -55,7 +57,11 @@ public class AsyncTaskLogin extends AsyncTask<String, Void, JSONObject> {
 
         try{
             Patsignin signin = apiServiceHandle.patsignin();
-            signin.setEmail(username).setPassword(password).setDeviceType("android");
+            signin
+                    .setEmail(username)
+                    .setPassword(password)
+                    .setDeviceRegid("")
+                    .setDeviceType("android");
 
             HttpResponse httpResponse = signin.executeUnparsed();
             String response = httpResponse.parseAsString();
@@ -87,7 +93,12 @@ public class AsyncTaskLogin extends AsyncTask<String, Void, JSONObject> {
                     SharedPreferences.Editor editor = AppData.sharedPreferences.edit();
                     editor.putString("email", username);
                     String sessionKey = jsonObject.getString("session_key");
+
+                    JSONArray jsonArray = jsonObject.optJSONArray("members");
+                    JSONObject jsonObjectMembers = jsonArray.getJSONObject(0);
+                    String memberID = jsonObjectMembers.optString("mem_id").toString();
                     editor.putString("session_key", sessionKey);
+                    editor.putString("mem_id", memberID);
                     editor.commit();
                     progressDialogLogin.dismiss();
                     Intent i = new Intent(activityLogin, Dashboard.class);

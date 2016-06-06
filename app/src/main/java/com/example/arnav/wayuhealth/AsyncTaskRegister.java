@@ -47,7 +47,7 @@ public class AsyncTaskRegister extends AsyncTask<Void, JSONObject, JSONObject> {
 
         progressDialogRegister = new ProgressDialog(activityRegister);
         progressDialogRegister.setTitle("WayuHealth");
-        progressDialogRegister.setMessage("Logging In...");
+        progressDialogRegister.setMessage("Registering...");
         progressDialogRegister.setIndeterminate(false);
         progressDialogRegister.show();
     }
@@ -66,6 +66,7 @@ public class AsyncTaskRegister extends AsyncTask<Void, JSONObject, JSONObject> {
                     .setPassword(password.trim())
                     .setCountry(country)
                     //.setGcmRegid(gcm_regid != null ? gcm_regid.trim() : null)
+                    .setDeviceRegid("")
                     .setState(state).setUserAgreement(true)
                     .setDeviceType("android");
 
@@ -114,10 +115,8 @@ public class AsyncTaskRegister extends AsyncTask<Void, JSONObject, JSONObject> {
 
             } catch (JSONException e) {
                 e.printStackTrace();
-                progressDialogRegister.dismiss();
             } catch (Exception e) {
                 // TODO: handle exception
-                progressDialogRegister.dismiss();
             }
 
         super.onPostExecute(result);
