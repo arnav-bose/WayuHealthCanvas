@@ -12,7 +12,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -39,7 +38,8 @@ public class TakePicture extends Fragment {
 
     private static final int TAKE_PICTURE = 1;
     private static final int REQUEST_CODE = 1;
-    private Uri imageUri;
+    public static Uri imageUri;
+    public static Bitmap bitmap;
 
     Button buttonTakePicture;
     Button buttonUploadImage;
@@ -164,7 +164,6 @@ public class TakePicture extends Fragment {
                     Uri selectedImage = imageUri;
                     getContext().getContentResolver().notifyChange(selectedImage, null);
                     ContentResolver cr = getContext().getContentResolver();
-                    Bitmap bitmap;
                     try {
                         bitmap = android.provider.MediaStore.Images.Media
                                 .getBitmap(cr, selectedImage);
