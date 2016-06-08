@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import com.example.arnav.wayuhealth.AppData;
 import com.example.arnav.wayuhealth.R;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,10 +42,12 @@ public class TakePicture extends Fragment {
     private static final int REQUEST_CODE = 1;
     public static Uri imageUri;
     public static Bitmap bitmap;
+    public String optionSelected;
 
     Button buttonTakePicture;
     Button buttonUploadImage;
     ImageView imageViewPicture;
+    private String selectedImagePath;
 
 
     public TakePicture() {
@@ -74,9 +78,13 @@ public class TakePicture extends Fragment {
                         switch (which){
                             case 0: {
                                 cameraIntent(view);
+                                optionSelected = "Camera";
                             }
                                 break;
-                            case 1: //galleryIntent(view);
+                            case 1: {
+                                galleryIntent(view);
+                                optionSelected = "Gallery";
+                            }
                                 break;
                         }
                     }
@@ -111,6 +119,74 @@ public class TakePicture extends Fragment {
         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo));
         imageUri = Uri.fromFile(photo);
         startActivityForResult(intent, TAKE_PICTURE);
+    }
+
+    public void galleryIntent(View view){
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), TAKE_PICTURE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(optionSelected.equals("Camera")){
+            switch (requestCode) {
+                case TAKE_PICTURE:
+                    if (resultCode == Activity.RESULT_OK) {
+                        Uri selectedImage = imageUri;
+                        getContext().getContentResolver().notifyChange(selectedImage, null);
+                        ContentResolver cr = getContext().getContentResolver();
+                        try {
+                            bitmap = android.provider.MediaStore.Images.Media.getBitmap(cr, selectedImage);
+
+                            imageViewPicture.setImageBitmap(displayImage(bitmap));
+                            Toast.makeText(getActivity(), selectedImage.toString(), Toast.LENGTH_LONG).show();
+                        } catch (Exception e) {
+                            Toast.makeText(getActivity(), "Failed to load", Toast.LENGTH_SHORT).show();
+                            Log.e("Camera", e.toString());
+                        }
+                    }
+            }
+        }
+        else{
+            if (resultCode == Activity.RESULT_OK) {
+                if (requestCode == TAKE_PICTURE) {
+                    Uri selectedImageUri = data.getData();
+                    selectedImagePath = getPath(selectedImageUri);
+                    imageUri = Uri.parse(selectedImagePath);
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImageUri);
+                        imageViewPicture.setImageBitmap(displayImage(bitmap));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    public String getPath(Uri uri) {
+        // just some safety built in
+        if( uri == null ) {
+            // TODO perform some logging or show user feedback
+            return null;
+        }
+        // try to retrieve the image from the media store first
+        // this will only work for images selected from gallery
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getActivity().managedQuery(uri, projection, null, null, null);
+        if( cursor != null ){
+            int column_index = cursor
+                    .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        }
+        // this is our fallback here
+        return uri.getPath();
     }
 
     public void OnRequestPermissions(){
@@ -152,30 +228,6 @@ public class TakePicture extends Fragment {
             break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case TAKE_PICTURE:
-                if (resultCode == Activity.RESULT_OK) {
-                    Uri selectedImage = imageUri;
-                    getContext().getContentResolver().notifyChange(selectedImage, null);
-                    ContentResolver cr = getContext().getContentResolver();
-                    try {
-                        bitmap = android.provider.MediaStore.Images.Media
-                                .getBitmap(cr, selectedImage);
-
-                        imageViewPicture.setImageBitmap(displayImage(bitmap));
-                        Toast.makeText(getActivity(), selectedImage.toString(),
-                                Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(getActivity(), "Failed to load", Toast.LENGTH_SHORT).show();
-                        Log.e("Camera", e.toString());
-                    }
-                }
         }
     }
 

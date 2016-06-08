@@ -86,6 +86,7 @@ public class AsyncTaskCheckSessionKey extends AsyncTask <Void, Void, JSONObject>
 
                     }
                 };
+                threadSessionKeyExpire.start();
             }
 
         } catch (JSONException e) {
