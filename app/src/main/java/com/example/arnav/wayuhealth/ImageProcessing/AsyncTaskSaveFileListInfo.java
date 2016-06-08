@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.appspot.wayuconnectdev.loginWC.LoginWC;
 import com.appspot.wayuconnectdev.loginWC.LoginWC.SaveFileListInfo;
 import com.example.arnav.wayuhealth.AppConstants;
+import com.example.arnav.wayuhealth.AppData;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -82,6 +83,17 @@ public class AsyncTaskSaveFileListInfo extends AsyncTask<Void, Void, String> {
             if(success == 1){
                 progressDialogSaveFileListInfo.dismiss();
                 Toast.makeText(activitySaveFileListInfo, "Image Successfully Uploaded", Toast.LENGTH_LONG).show();
+
+                AppData.sharedPreferences = contextSaveFileListInfo.getSharedPreferences(AppData.mySharedPreferences, Context.MODE_PRIVATE);
+                String email = AppData.sharedPreferences.getString("email", "");
+                String sessionKey = AppData.sharedPreferences.getString("session_key", "");
+                String memberID = AppData.sharedPreferences.getString("mem_id", "");
+                Bundle bundle = new Bundle();
+                bundle.putString("email", email);
+                bundle.putString("session_key", sessionKey);
+                bundle.putString("member_id", memberID);
+                AsyncTaskGetUrls asyncTaskGetUrls = new AsyncTaskGetUrls(contextSaveFileListInfo, bundle);
+                asyncTaskGetUrls.execute();
             }
             else
                 Toast.makeText(activitySaveFileListInfo, "Could not Save Details to Database.", Toast.LENGTH_LONG).show();
