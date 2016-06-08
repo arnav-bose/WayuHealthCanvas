@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
@@ -86,11 +87,10 @@ public class AsyncTaskUploadImage extends AsyncTask<Void, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
-        progressDialogUploadImage.dismiss();
-        Toast.makeText(activityUploadImage, "Image Uploaded", Toast.LENGTH_LONG).show();
 
         //Storing result in SQLite Database
         try {
+            progressDialogUploadImage.setMessage("Image Uploaded. Storing Details to SQLite Database.");
             JSONObject jsonObject = new JSONObject(result);
             String blobKey = jsonObject.getString("blobKey");
             String servingURL = jsonObject.getString("servingUrl");
@@ -101,10 +101,25 @@ public class AsyncTaskUploadImage extends AsyncTask<Void, Void, String> {
             DatabaseHandler databaseHandler = new DatabaseHandler(contextUploadImage);
             databaseHandler.addContact(new ImageUploadStructure(memberID, blobKey, servingURL));
 
+            progressDialogUploadImage.dismiss();
 
+            //Executing saveFileListInfo AsyncTask
+            //Getting the parameters
+            String email = AppData.sharedPreferences.getString("email", "");
+            String sessionKey = AppData.sharedPreferences.getString("session_key", "");
+            Bundle bundle = new Bundle();
+            bundle.putString("email", email);
+            bundle.putString("session_key", sessionKey);
+            bundle.putString("member_id", memberID);
+            bundle.putString("blob_key", blobKey);
+            bundle.putString("serving_url", servingURL);
+
+            AsyncTaskSaveFileListInfo asyncTaskSaveFileListInfo = new AsyncTaskSaveFileListInfo(activityUploadImage, bundle);
+            asyncTaskSaveFileListInfo.execute();
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
     }
 
     private String getFileName(Context context, Uri imageUri) {
