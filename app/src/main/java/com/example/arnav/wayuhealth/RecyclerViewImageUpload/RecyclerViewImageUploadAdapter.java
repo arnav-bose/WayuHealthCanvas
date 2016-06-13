@@ -1,12 +1,16 @@
 package com.example.arnav.wayuhealth.RecyclerViewImageUpload;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.arnav.wayuhealth.FullscreenImage;
 import com.example.arnav.wayuhealth.R;
 
 import java.util.ArrayList;
@@ -57,10 +61,18 @@ public class RecyclerViewImageUploadAdapter extends RecyclerView.Adapter<Recycle
     public void onBindViewHolder(RecyclerViewImageUploadAdapter.RecyclerViewHolder holder, int position) {
         DataSetImageUpload dataSetImageUpload = arrayListImageUpload.get(position);
         holder.imageViewImageUpload.setImageBitmap(dataSetImageUpload.getImageViewNotes());
+        final Bitmap bitmapRecyclerView = dataSetImageUpload.getImageViewNotes();
+
         holder.cardViewImageUpload.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                //TODO: Make NotesDetails.java
+                try{
+                    Intent i = new Intent(v.getContext(),FullscreenImage.class);
+                    i.putExtra("bitmap", bitmapRecyclerView);
+                    v.getContext().startActivity(i);
+                }catch (Exception e){
+                    Log.d("FALCON FULLSCREEN: ", e.toString());
+                }
             }
         });
     }

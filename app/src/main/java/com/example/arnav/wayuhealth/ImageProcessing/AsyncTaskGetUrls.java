@@ -2,6 +2,7 @@ package com.example.arnav.wayuhealth.ImageProcessing;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -80,5 +81,6 @@ public class AsyncTaskGetUrls extends AsyncTask<Void, Void, String> {
 
         AsyncTaskGetUploadImage asyncTaskGetUploadImage = new AsyncTaskGetUploadImage(contextGetUrls);
         asyncTaskGetUploadImage.execute(jsonPath);
+
     }
 }
