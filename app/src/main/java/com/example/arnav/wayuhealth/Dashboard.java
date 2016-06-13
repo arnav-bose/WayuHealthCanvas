@@ -22,6 +22,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+
 import java.io.File;
 
 public class Dashboard extends AppCompatActivity {
@@ -39,6 +41,7 @@ public class Dashboard extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
+        Fresco.initialize(this);
 
         //Toolbar
         toolbarDashboard = (Toolbar)findViewById(R.id.toolbarDashboard);

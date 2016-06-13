@@ -40,14 +40,17 @@ public class TakePicture extends Fragment {
 
     private static final int TAKE_PICTURE = 1;
     private static final int REQUEST_CODE = 1;
-    public static Uri imageUri;
+    public static Uri imageUriCamera;
     public static Bitmap bitmap;
-    public String optionSelected;
+    public static String optionSelected;
+    public static Uri selectedImageUri;
+    public static Uri imageUriGallery;
 
     Button buttonTakePicture;
     Button buttonUploadImage;
-    ImageView imageViewPicture;
-    private String selectedImagePath;
+    //SimpleDraweeView simpleDraweeViewTakePhoto;
+    ImageView imageViewTakePhoto;
+    ;
 
 
     public TakePicture() {
@@ -61,7 +64,8 @@ public class TakePicture extends Fragment {
 
         buttonTakePicture = (Button)view.findViewById(R.id.buttonTakePicture);
         buttonUploadImage = (Button)view.findViewById(R.id.buttonUploadImage);
-        imageViewPicture = (ImageView)view.findViewById(R.id.imageViewPicture);
+        //simpleDraweeViewTakePhoto = (SimpleDraweeView)view.findViewById(R.id.simpleDraweeViewTakePhoto);
+        imageViewTakePhoto = (ImageView)view.findViewById(R.id.imageViewTakePhoto);
 
         buttonTakePicture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,6 +112,14 @@ public class TakePicture extends Fragment {
             }
         });
 
+        imageViewTakePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), FullScreenCanvas.class);
+                startActivity(i);
+            }
+        });
+
 
         // Inflate the layout for this fragment
         return view;
@@ -117,7 +129,7 @@ public class TakePicture extends Fragment {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photo = new File(Environment.getExternalStorageDirectory(),  "Pic.jpg");
         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo));
-        imageUri = Uri.fromFile(photo);
+        imageUriCamera = Uri.fromFile(photo);
         startActivityForResult(intent, TAKE_PICTURE);
     }
 
@@ -135,13 +147,14 @@ public class TakePicture extends Fragment {
             switch (requestCode) {
                 case TAKE_PICTURE:
                     if (resultCode == Activity.RESULT_OK) {
-                        Uri selectedImage = imageUri;
+                        Uri selectedImage = imageUriCamera;
+                        //simpleDraweeViewTakePhoto.setImageURI(selectedImage);
                         getContext().getContentResolver().notifyChange(selectedImage, null);
                         ContentResolver cr = getContext().getContentResolver();
                         try {
                             bitmap = android.provider.MediaStore.Images.Media.getBitmap(cr, selectedImage);
-
-                            imageViewPicture.setImageBitmap(displayImage(bitmap));
+                            imageViewTakePhoto.setImageBitmap(displayImage(bitmap));
+                            //simpleDraweeViewTakePhoto.setImageBitmap(displayImage(bitmap));
                             Toast.makeText(getActivity(), selectedImage.toString(), Toast.LENGTH_LONG).show();
                         } catch (Exception e) {
                             Toast.makeText(getActivity(), "Failed to load", Toast.LENGTH_SHORT).show();
@@ -153,12 +166,13 @@ public class TakePicture extends Fragment {
         else{
             if (resultCode == Activity.RESULT_OK) {
                 if (requestCode == TAKE_PICTURE) {
-                    Uri selectedImageUri = data.getData();
-                    selectedImagePath = getPath(selectedImageUri);
-                    imageUri = Uri.parse(selectedImagePath);
+                    selectedImageUri = data.getData();
+                    String selectedImagePath = getPath(selectedImageUri);
+                    imageUriGallery = Uri.parse(selectedImagePath);
                     try {
                         bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImageUri);
-                        imageViewPicture.setImageBitmap(displayImage(bitmap));
+                        imageViewTakePhoto.setImageBitmap(displayImage(bitmap));
+                        //simpleDraweeViewTakePhoto.setImageBitmap(displayImage(bitmap));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -231,7 +245,7 @@ public class TakePicture extends Fragment {
         }
     }
 
-    public Bitmap displayImage(Bitmap bitmap){
+    public static Bitmap displayImage(Bitmap bitmap){
         Bitmap bitmapScaled;
         int height = bitmap.getHeight();
         int width = bitmap.getWidth();

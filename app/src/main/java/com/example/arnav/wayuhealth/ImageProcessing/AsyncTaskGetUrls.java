@@ -95,7 +95,7 @@ public class AsyncTaskGetUrls extends AsyncTask<Void, Void, String> {
         AsyncTaskGetUploadImageOne asyncTaskImageUploadOne = new AsyncTaskGetUploadImageOne(contextGetUrls);
         asyncTaskImageUploadOne.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-        AsyncTaskGetUploadImageTwo asyncTaskImageUploadTwo = new AsyncTaskGetUploadImageTwo(contextGetUrls);
-        asyncTaskImageUploadTwo.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//        AsyncTaskGetUploadImageTwo asyncTaskImageUploadTwo = new AsyncTaskGetUploadImageTwo(contextGetUrls);
+//        asyncTaskImageUploadTwo.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }

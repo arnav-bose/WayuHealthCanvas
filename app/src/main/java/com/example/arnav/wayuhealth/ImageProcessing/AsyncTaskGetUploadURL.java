@@ -2,9 +2,7 @@ package com.example.arnav.wayuhealth.ImageProcessing;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -32,6 +30,7 @@ public class AsyncTaskGetUploadURL extends AsyncTask<Void, Void, String> {
     String sessionKey, email, memberID;
     String uploadURL;
     ProgressDialog progressDialogGetUploadURL;
+    Uri imageUri;
 
     AsyncTaskGetUploadURL(Context context, Bundle bundle) {
         contextGetUploadURL = context;
@@ -86,11 +85,15 @@ public class AsyncTaskGetUploadURL extends AsyncTask<Void, Void, String> {
             int success = jsonObject.getInt("success");
 
             if (success == 1) {
-                //Start Multipart
-                uploadURL = jsonObject.getString("uploadURL");
-                Bitmap bitmap = TakePicture.bitmap;
-                Uri imageUri = TakePicture.imageUri;
+                if (TakePicture.optionSelected.equals("Camera")) {
+                    imageUri = TakePicture.imageUriCamera;
+                } else {
+                    imageUri = TakePicture.imageUriGallery;
+                }
                 try {
+                    //Start Multipart
+                    uploadURL = jsonObject.getString("uploadURL");
+                    Bitmap bitmap = TakePicture.bitmap;
                     progressDialogGetUploadURL.dismiss();
                     AsyncTaskUploadImage asyncTaskUploadImage = new AsyncTaskUploadImage(contextGetUploadURL, bitmap, imageUri, uploadURL);
                     asyncTaskUploadImage.execute();

@@ -1,6 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -17,27 +18,21 @@
             android:layout_centerHorizontal="true" />
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageViewPicture"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
+            android:id="@+id/imageViewTakePhoto"
+            android:layout_width="265dp"
+            android:layout_height="420dp"
             android:layout_below="@+id/buttonTakePicture"
             android:layout_marginTop="16dp"
-            android:minWidth="300dp"
-            android:minHeight="450dp"
-            android:maxHeight="450dp"
-            android:maxWidth="300dp"
-            android:adjustViewBounds="true"/>
+            android:layout_centerHorizontal="true" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:text="Upload"
+            android:layout_marginTop="16dp"
             android:id="@+id/buttonUploadImage"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/imageViewPicture"/>
+            android:layout_below="@+id/imageViewTakePhoto"
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
 
 </ScrollView>
