@@ -16,7 +16,11 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Arnav on 08/06/2016.
@@ -27,6 +31,7 @@ public class AsyncTaskGetUrls extends AsyncTask<Void, Void, String> {
     Activity activityGetUrls;
     String email, sessionKey, memberID;
     List<String> jsonPath;
+    public static HashMap hashMap;
 
     AsyncTaskGetUrls(Context context, Bundle bundle){
         this.contextGetUrls = context;
@@ -40,6 +45,8 @@ public class AsyncTaskGetUrls extends AsyncTask<Void, Void, String> {
     protected void onPreExecute() {
         super.onPreExecute();
         jsonPath = new ArrayList<String>();
+        hashMap = new HashMap();
+
     }
 
     @Override
@@ -74,13 +81,21 @@ public class AsyncTaskGetUrls extends AsyncTask<Void, Void, String> {
             for(int i = 0; i < jsonArrayParent.length(); i++){
                 JSONObject jsonObjectFinal = jsonArrayParent.getJSONObject(i);
                 jsonPath.add(jsonObjectFinal.getString("serving_url"));
+                hashMap.put(jsonObjectFinal.getString("serving_url"), "Not Started");
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        AsyncTaskGetUploadImage asyncTaskGetUploadImage = new AsyncTaskGetUploadImage(contextGetUrls);
-        asyncTaskGetUploadImage.execute(jsonPath);
+        multipleAsyncTasks();
 
+    }
+
+    public void multipleAsyncTasks(){
+        AsyncTaskGetUploadImageOne asyncTaskImageUploadOne = new AsyncTaskGetUploadImageOne(contextGetUrls);
+        asyncTaskImageUploadOne.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+        AsyncTaskGetUploadImageTwo asyncTaskImageUploadTwo = new AsyncTaskGetUploadImageTwo(contextGetUrls);
+        asyncTaskImageUploadTwo.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 }
