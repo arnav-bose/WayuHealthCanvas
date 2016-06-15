@@ -1,0 +1,13 @@
+1. 
+- undo
+- redo
+- clear
+- erase
+
+2. color picker
+
+3. Shapes
+
+4. Background Color
+
+5. Blur

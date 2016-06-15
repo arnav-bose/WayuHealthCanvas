@@ -1,63 +1,45 @@
 package com.example.arnav.wayuhealth.ImageProcessing;
 
-import android.content.Context;
+
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BlurMaskFilter;
-import android.graphics.Canvas;
-import android.graphics.EmbossMaskFilter;
-import android.graphics.MaskFilter;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
+
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.example.arnav.wayuhealth.R;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
+import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import org.xdty.preference.ColorPreference;
+import org.xdty.preference.colorpicker.ColorPickerDialog;
+import org.xdty.preference.colorpicker.ColorPickerSwatch;
+
 import java.io.IOException;
-import java.util.ArrayList;
 
-public class FullScreenCanvas extends AppCompatActivity implements ColorPickerDialog.OnColorChangedListener {
+public class FullScreenCanvas extends AppCompatActivity implements View.OnClickListener {
 
-    MyView mv;
-    private Paint mPaint;
-    private MaskFilter mEmboss;
-    private MaskFilter mBlur;
-
-    ImageView imageViewCanvas;
+    CanvasView canvasView;
     Bitmap bitmap;
+    private int selectedColor;
+    ColorPickerDialog dialog;
 
-    private static final float MINP = 0.25f;
-    private static final float MAXP = 0.75f;
-    private Bitmap mBitmap;
-    private Canvas mCanvas;
-    private Path mPath;
-    private Paint mBitmapPaint;
-    Context context;
-    private ArrayList<Path> paths = new ArrayList<Path>();
-    private ArrayList<Path> undonePaths = new ArrayList<Path>();
-
+    private static final String TAG_COLOR_PICKER = "colorPicker";
+    private static final String TAG_UNDO = "undo";
+    private static final String TAG_REDO = "redo";
+    private static final String TAG_STROKE_WIDTH = "strokeWidth";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,274 +48,138 @@ public class FullScreenCanvas extends AppCompatActivity implements ColorPickerDi
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_fullscreen_canvas);
 
-        imageViewCanvas = (ImageView) findViewById(R.id.imageViewCanvas);
-        assert imageViewCanvas != null;
+        canvasView = (CanvasView) findViewById(R.id.canvasView);
 
+        assert canvasView != null;
+        canvasView.setBaseColor(Color.TRANSPARENT);
+
+        displayImage();
+
+        //Color Picker
+        selectedColor = ContextCompat.getColor(this, R.color.red);
+        canvasView.setPaintStrokeColor(selectedColor);
+        int[] mColors = getResources().getIntArray(R.array.default_rainbow);
+        dialog = ColorPickerDialog.newInstance(R.string.color_picker_default_title, mColors, selectedColor, 5, ColorPickerDialog.SIZE_SMALL);
+
+        //OnClickColorPicker
+        dialog.setOnColorSelectedListener(new ColorPickerSwatch.OnColorSelectedListener() {
+
+            @Override
+            public void onColorSelected(int color) {
+                selectedColor = color;
+                canvasView.setPaintStrokeColor(selectedColor);
+            }
+
+        });
+
+        //Floating Action Button
+        ImageView imageViewFloatingActionButton = new ImageView(this);
+        imageViewFloatingActionButton.setImageResource(R.drawable.ic_gesture_white_24dp);
+
+        FloatingActionButton floatingActionButtonCanvas = new FloatingActionButton.Builder(this)
+                .setContentView(imageViewFloatingActionButton)
+                .setBackgroundDrawable(R.drawable.button_action_red_selector)
+                .build();
+
+        SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
+        itemBuilder.setBackgroundDrawable(getResources().getDrawable(R.drawable.button_action_blue_selector));
+
+        ImageView imageViewColorPicker = new ImageView(this);
+        imageViewColorPicker.setImageResource(R.drawable.ic_palette_white_24dp);
+        SubActionButton subActionButtonColorPicker = itemBuilder.setContentView(imageViewColorPicker).build();
+        subActionButtonColorPicker.setTag(TAG_COLOR_PICKER);
+        subActionButtonColorPicker.setOnClickListener(this);
+
+
+        ImageView imageViewUndo = new ImageView(this);
+        imageViewUndo.setImageResource(R.drawable.ic_undo_white_24dp);
+        SubActionButton subActionButtonUndo = itemBuilder.setContentView(imageViewUndo).build();
+        subActionButtonUndo.setTag(TAG_UNDO);
+        subActionButtonUndo.setOnClickListener(this);
+
+        ImageView imageViewRedo = new ImageView(this);
+        imageViewRedo.setImageResource(R.drawable.ic_redo_white_24dp);
+        SubActionButton subActionButtonRedo = itemBuilder.setContentView(imageViewRedo).build();
+        subActionButtonRedo.setTag(TAG_REDO);
+        subActionButtonRedo.setOnClickListener(this);
+
+        ImageView imageViewStrokeWidth = new ImageView(this);
+        imageViewStrokeWidth.setImageResource(R.drawable.ic_create_white_24dp);
+        SubActionButton subActionButtonStrokeWidth = itemBuilder.setContentView(imageViewStrokeWidth).build();
+        subActionButtonStrokeWidth.setTag(TAG_STROKE_WIDTH);
+        subActionButtonStrokeWidth.setOnClickListener(this);
+
+        FloatingActionMenu actionMenu = new FloatingActionMenu.Builder(this)
+                .addSubActionView(subActionButtonColorPicker)
+                .attachTo(floatingActionButtonCanvas)
+                .addSubActionView(subActionButtonUndo)
+                .attachTo(floatingActionButtonCanvas)
+                .addSubActionView(subActionButtonRedo)
+                .attachTo(floatingActionButtonCanvas)
+                .addSubActionView(subActionButtonStrokeWidth)
+                .attachTo(floatingActionButtonCanvas)
+                .build();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getTag().equals(TAG_STROKE_WIDTH)) {
+            strokePicker();
+        } else if (v.getTag().equals(TAG_UNDO)) {
+            canvasView.undo();
+        } else if (v.getTag().equals(TAG_REDO)) {
+            canvasView.redo();
+        } else if(v.getTag().equals(TAG_COLOR_PICKER)){
+            dialog.show(getFragmentManager(), "Color Picker");
+        }
+    }
+
+    public void displayImage() {
         if (TakePicture.optionSelected.equals("Camera")) {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), TakePicture.imageUriCamera);
-                imageViewCanvas.setImageBitmap(TakePicture.displayImage(bitmap));
+                Drawable d = new BitmapDrawable(getResources(), bitmap);
+                canvasView.setBackground(d);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {
+        } else if (TakePicture.optionSelected.equals("Gallery")) {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), TakePicture.selectedImageUri);
-                imageViewCanvas.setImageBitmap(TakePicture.displayImage(bitmap));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                Drawable d = new BitmapDrawable(getResources(), bitmap);
+                canvasView.setBackground(d);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-
-        mv = new MyView(this);
-        mv.setDrawingCacheEnabled(true);
-        Drawable d = new BitmapDrawable(getResources(), bitmap);
-        //mv.setBackgroundResource(R.mipmap.ic_launcher);//set the back ground if you wish to
-        mv.setBackgroundDrawable(d);
-        setContentView(mv);
-        mPaint = new Paint();
-        mPaint.setAntiAlias(true);
-        mPaint.setDither(true);
-        mPaint.setColor(0xFFFF0000);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStrokeWidth(20);
-        mEmboss = new EmbossMaskFilter(new float[]{1, 1, 1}, 0.4f, 6, 3.5f);
-        mBlur = new BlurMaskFilter(8, BlurMaskFilter.Blur.NORMAL);
-
+        } else
+            finish();
     }
 
-    @Override
-    public void colorChanged(int color) {
-        mPaint.setColor(color);
-    }
-
-    public class MyView extends View {
-
-        public MyView(Context c) {
-            super(c);
-            context = c;
-            mPath = new Path();
-            mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-
-        }
-
-        public void clearDrawing() {
-            setDrawingCacheEnabled(false);
-            // don't forget that one and the match below,
-            // or you just keep getting a duplicate when you save.
-            onSizeChanged(mv.getWidth(), mv.getHeight(), mv.getWidth(), mv.getHeight());
-            invalidate();
-            setDrawingCacheEnabled(true);
-        }
-
-        @Override
-        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-            super.onSizeChanged(w, h, oldw, oldh);
-            int width = w;      // don't forget these
-            int height = h;
-            mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            mCanvas = new Canvas(mBitmap);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            super.onDraw(canvas);
-
-            for (Path p : paths) {
-                canvas.drawPath(p, mPaint);
-            }
-            canvas.drawPath(mPath, mPaint);
-
-            canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-        }
-
-        private float mX, mY;
-        private static final float TOUCH_TOLERANCE = 4;
-
-        private void touch_start(float x, float y) {
-            //showDialog();
-            undonePaths.clear();
-            mPath.reset();
-            mPath.moveTo(x, y);
-            mX = x;
-            mY = y;
-
-        }
-
-        private void touch_move(float x, float y) {
-            float dx = Math.abs(x - mX);
-            float dy = Math.abs(y - mY);
-            if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-                mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
-                mX = x;
-                mY = y;
-            }
-        }
-
-        private void touch_up() {
-            mPath.lineTo(mX, mY);
-            // commit the path to our offscreen
-            mCanvas.drawPath(mPath, mPaint);
-            // kill this so we don't double draw
-//            mPath.reset();
-//            mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
-            //mPaint.setMaskFilter(null);
-            paths.add(mPath);
-            mPath = new Path();
-            mPaint = new Paint(mPaint);
-        }
-
-        public void onClickUndo() {
-            if (paths.size() > 0) {
-                undonePaths.add(paths.remove(paths.size() - 1));
-                invalidate();
-            } else {
-                Toast.makeText(getContext(), "Nothing to Undo", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        public void onClickRedo() {
-            if (undonePaths.size() > 0) {
-                paths.add(undonePaths.remove(undonePaths.size() - 1));
-                invalidate();
-            } else {
-
-            }
-            //toast the user
-        }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            float x = event.getX();
-            float y = event.getY();
-
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    touch_start(x, y);
-                    invalidate();
-                    break;
-                case MotionEvent.ACTION_MOVE:
-
-                    touch_move(x, y);
-                    invalidate();
-                    break;
-                case MotionEvent.ACTION_UP:
-                    touch_up();
-                    invalidate();
-                    break;
-            }
-            return true;
-        }
-    }
-
-    private static final int COLOR_MENU_ID = Menu.FIRST;
-    private static final int EMBOSS_MENU_ID = Menu.FIRST + 1;
-    private static final int BLUR_MENU_ID = Menu.FIRST + 2;
-    private static final int ERASE_MENU_ID = Menu.FIRST + 3;
-    private static final int UNDO = Menu.FIRST + 4;
-    private static final int REDO = Menu.FIRST + 5;
-    private static final int Save = Menu.FIRST + 6;
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-
-        menu.add(0, COLOR_MENU_ID, 0, "Color").setShortcut('3', 'c');
-        menu.add(0, EMBOSS_MENU_ID, 0, "Emboss").setShortcut('4', 's');
-        menu.add(0, BLUR_MENU_ID, 0, "Blur").setShortcut('5', 'z');
-        menu.add(0, ERASE_MENU_ID, 0, "Erase").setShortcut('5', 'z');
-        menu.add(0, UNDO, 0, "Undo").setShortcut('5', 'z');
-        menu.add(0, REDO, 0, "Redo").setShortcut('5', 'z');
-        menu.add(0, Save, 0, "Save").setShortcut('5', 'z');
-
-        return true;
-    }
-
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        mPaint.setXfermode(null);
-        mPaint.setAlpha(0xFF);
-        MyView myView = new MyView(FullScreenCanvas.this);
-
-        switch (item.getItemId()) {
-            case COLOR_MENU_ID:
-                new ColorPickerDialog(this, this, mPaint.getColor()).show();
-                return true;
-            case EMBOSS_MENU_ID:
-                if (mPaint.getMaskFilter() != mEmboss) {
-                    mPaint.setMaskFilter(mEmboss);
-                } else {
-                    mPaint.setMaskFilter(null);
-                }
-                return true;
-            case BLUR_MENU_ID:
-                if (mPaint.getMaskFilter() != mBlur) {
-                    mPaint.setMaskFilter(mBlur);
-                } else {
-                    mPaint.setMaskFilter(null);
-                }
-                return true;
-            case ERASE_MENU_ID:
-                mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-                mPaint.setAlpha(0x80);
-                return true;
-            case UNDO: {
-                myView.onClickUndo();
-                return true;
-            }
-
-            case REDO: {
-                myView.onClickRedo();
-                return true;
-            }
-
-            case Save:
-                AlertDialog.Builder editalert = new AlertDialog.Builder(FullScreenCanvas.this);
-                editalert.setTitle("Please Enter the name with which you want to Save");
-                final EditText input = new EditText(FullScreenCanvas.this);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.FILL_PARENT,
-                        LinearLayout.LayoutParams.FILL_PARENT);
-                input.setLayoutParams(lp);
-                editalert.setView(input);
-                editalert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                        String name = input.getText().toString();
-                        Bitmap bitmap = mv.getDrawingCache();
-
-                        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
-                        File file = new File("/sdcard/" + name + ".png");
-                        try {
-                            if (!file.exists()) {
-                                file.createNewFile();
-                            }
-                            FileOutputStream ostream = new FileOutputStream(file);
-                            bitmap.compress(Bitmap.CompressFormat.PNG, 10, ostream);
-                            ostream.close();
-                            mv.invalidate();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        } finally {
-                            mv.setDrawingCacheEnabled(false);
-                        }
+    public void strokePicker(){
+        AlertDialog.Builder builderStrokePicker = new AlertDialog.Builder(this);
+        String[] types = {"Thin", "Medium", "Fat"};
+        builderStrokePicker.setItems(types, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                switch (which){
+                    case 0: {
+                        canvasView.setPaintStrokeWidth(2F);
                     }
-                });
+                    break;
+                    case 1: {
+                        canvasView.setPaintStrokeWidth(5F);
+                    }
+                    break;
+                    case 2: {
+                        canvasView.setPaintStrokeWidth(12F);
+                    }
+                    break;
+                }
+            }
+        });
 
-                editalert.show();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+        builderStrokePicker.show();
     }
 }

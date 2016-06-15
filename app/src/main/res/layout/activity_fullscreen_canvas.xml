@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/relativeLayout"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <com.example.arnav.wayuhealth.ImageProcessing.CanvasView
         android:id="@+id/canvasView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <LinearLayout
-        android:id="@+id/view_drawing_pad"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical">
-    </LinearLayout>
 
 </RelativeLayout>

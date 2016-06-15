@@ -50,8 +50,6 @@ public class TakePicture extends Fragment {
     Button buttonUploadImage;
     //SimpleDraweeView simpleDraweeViewTakePhoto;
     ImageView imageViewTakePhoto;
-    ;
-
 
     public TakePicture() {
         // Required empty public constructor
