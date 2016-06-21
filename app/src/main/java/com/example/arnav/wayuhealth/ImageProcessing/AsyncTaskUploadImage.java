@@ -137,9 +137,7 @@ public class AsyncTaskUploadImage extends AsyncTask<Void, Void, String> {
             String[] proj = { MediaStore.Images.Media.TITLE };
             Cursor cursor = context.getContentResolver().query(imageUri, proj,
                     null, null, null);
-            if (cursor != null && cursor.getCount() != 0) {
-                int columnIndex = cursor
-                        .getColumnIndexOrThrow(MediaStore.Images.Media.TITLE);
+            if (cursor != null && cursor.getCount() != 0) {int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.TITLE);
                 cursor.moveToFirst();
                 fileName = cursor.getString(columnIndex);
             }

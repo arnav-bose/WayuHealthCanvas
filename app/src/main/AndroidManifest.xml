@@ -26,7 +26,8 @@
         <activity android:name=".Register" />
         <activity android:name=".Acknowledgement" />
         <activity android:name=".FullscreenImage" />
-        <activity android:name=".ImageProcessing.FullScreenCanvas"></activity>
+        <activity android:name=".ImageProcessing.FullScreenCanvas" />
+        <activity android:name=".ImageProcessing.CropImage"></activity>
     </application>
 
 </manifest>

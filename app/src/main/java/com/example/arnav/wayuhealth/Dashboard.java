@@ -1,5 +1,6 @@
 package com.example.arnav.wayuhealth;
 
+import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -7,6 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.widget.Button;
+
+import com.example.arnav.wayuhealth.ImageProcessing.TakePicture;
 
 public class Dashboard extends AppCompatActivity {
 
@@ -16,11 +19,20 @@ public class Dashboard extends AppCompatActivity {
     TabLayout tabLayoutDashboard;
     ViewPager viewPagerDashboard;
     ViewPagerAdapterDashboard viewPagerAdapterDashboard;
+    public static Uri uriFinalImage = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+        Bundle bundle = getIntent().getExtras();
+        if(bundle == null){
+        }
+        else{
+            uriFinalImage = Uri.parse(bundle.getString("uriFinalImage", ""));
+            TakePicture takePicture = new TakePicture();
+        }
 
         //Toolbar
         toolbarDashboard = (Toolbar)findViewById(R.id.toolbarDashboard);

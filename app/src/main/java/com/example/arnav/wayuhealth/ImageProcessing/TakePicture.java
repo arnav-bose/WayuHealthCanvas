@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,9 +29,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.arnav.wayuhealth.AppData;
+import com.example.arnav.wayuhealth.Dashboard;
 import com.example.arnav.wayuhealth.R;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,22 +52,30 @@ public class TakePicture extends Fragment {
 
     Button buttonTakePicture;
     Button buttonUploadImage;
-    //SimpleDraweeView simpleDraweeViewTakePhoto;
     ImageView imageViewTakePhoto;
 
-    public TakePicture() {
-        // Required empty public constructor
-    }
+    public TakePicture() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         final View view = inflater.inflate(R.layout.fragment_take_picture, container, false);
 
-        buttonTakePicture = (Button)view.findViewById(R.id.buttonTakePicture);
-        buttonUploadImage = (Button)view.findViewById(R.id.buttonUploadImage);
+        buttonTakePicture = (Button) view.findViewById(R.id.buttonTakePicture);
+        buttonUploadImage = (Button) view.findViewById(R.id.buttonUploadImage);
         //simpleDraweeViewTakePhoto = (SimpleDraweeView)view.findViewById(R.id.simpleDraweeViewTakePhoto);
-        imageViewTakePhoto = (ImageView)view.findViewById(R.id.imageViewTakePhoto);
+        imageViewTakePhoto = (ImageView) view.findViewById(R.id.imageViewTakePhoto);
+        imageViewTakePhoto.setVisibility(View.GONE);
+
+        if(Dashboard.uriFinalImage!=null){
+            try {
+                imageViewTakePhoto.setVisibility(View.VISIBLE);
+                bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), Dashboard.uriFinalImage);
+                imageViewTakePhoto.setImageBitmap(displayImage(bitmap));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         buttonTakePicture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,17 +89,17 @@ public class TakePicture extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        switch (which){
+                        switch (which) {
                             case 0: {
                                 cameraIntent(view);
                                 optionSelected = "Camera";
                             }
-                                break;
+                            break;
                             case 1: {
                                 galleryIntent(view);
                                 optionSelected = "Gallery";
                             }
-                                break;
+                            break;
                         }
                     }
                 });
@@ -113,7 +125,7 @@ public class TakePicture extends Fragment {
         imageViewTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getActivity(), FullScreenCanvas.class);
+                Intent i = new Intent(getActivity(), CropImage.class);
                 startActivity(i);
             }
         });
@@ -123,15 +135,15 @@ public class TakePicture extends Fragment {
         return view;
     }
 
-    public void cameraIntent(View view){
+    public void cameraIntent(View view) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File photo = new File(Environment.getExternalStorageDirectory(),  "Pic.jpg");
+        File photo = new File(Environment.getExternalStorageDirectory(), "Pic.jpg");
         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo));
         imageUriCamera = Uri.fromFile(photo);
         startActivityForResult(intent, TAKE_PICTURE);
     }
 
-    public void galleryIntent(View view){
+    public void galleryIntent(View view) {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -141,38 +153,66 @@ public class TakePicture extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(optionSelected.equals("Camera")){
+        if (optionSelected.equals("Camera")) {
             switch (requestCode) {
                 case TAKE_PICTURE:
                     if (resultCode == Activity.RESULT_OK) {
                         Uri selectedImage = imageUriCamera;
-                        //simpleDraweeViewTakePhoto.setImageURI(selectedImage);
                         getContext().getContentResolver().notifyChange(selectedImage, null);
                         ContentResolver cr = getContext().getContentResolver();
-                        try {
-                            bitmap = android.provider.MediaStore.Images.Media.getBitmap(cr, selectedImage);
-                            imageViewTakePhoto.setImageBitmap(displayImage(bitmap));
-                            //simpleDraweeViewTakePhoto.setImageBitmap(displayImage(bitmap));
-                            Toast.makeText(getActivity(), selectedImage.toString(), Toast.LENGTH_LONG).show();
-                        } catch (Exception e) {
-                            Toast.makeText(getActivity(), "Failed to load", Toast.LENGTH_SHORT).show();
-                            Log.e("Camera", e.toString());
+                        imageViewTakePhoto.setVisibility(View.VISIBLE);
+
+                        Bundle bundle = getActivity().getIntent().getExtras();
+                        if (bundle == null){
+                            try {
+                                bitmap = android.provider.MediaStore.Images.Media.getBitmap(cr, selectedImage);
+                                imageViewTakePhoto.setImageBitmap(displayImage(bitmap));
+                            } catch (Exception e) {
+                                Toast.makeText(getActivity(), "Failed to load", Toast.LENGTH_SHORT).show();
+                                Log.e("Camera", e.toString());
+                            }
+                        }else{
+                            try{
+                                String stringFinalImage = bundle.getString("uriFinalImage", "");
+                                Uri uriCroppedImage = Uri.parse(stringFinalImage);
+                                bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uriCroppedImage);
+                                imageViewTakePhoto.setImageBitmap(bitmap);
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
+
                     }
             }
-        }
-        else{
+        } else {
             if (resultCode == Activity.RESULT_OK) {
                 if (requestCode == TAKE_PICTURE) {
                     selectedImageUri = data.getData();
                     String selectedImagePath = getPath(selectedImageUri);
                     imageUriGallery = Uri.parse(selectedImagePath);
-                    try {
-                        bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImageUri);
-                        imageViewTakePhoto.setImageBitmap(displayImage(bitmap));
-                        //simpleDraweeViewTakePhoto.setImageBitmap(displayImage(bitmap));
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    imageViewTakePhoto.setVisibility(View.VISIBLE);
+
+                    Bundle bundle = getActivity().getIntent().getExtras();
+                    if (bundle == null) {
+                        try {
+                            bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), selectedImageUri);
+                            imageViewTakePhoto.setImageBitmap(displayImage(bitmap));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else{
+                        try{
+                            String stringFinalImage = bundle.getString("uriFinalImage", "");
+                            Uri uriCroppedImage = Uri.parse(stringFinalImage);
+                            bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uriCroppedImage);
+                            imageViewTakePhoto.setImageBitmap(bitmap);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -183,15 +223,15 @@ public class TakePicture extends Fragment {
 
     public String getPath(Uri uri) {
         // just some safety built in
-        if( uri == null ) {
+        if (uri == null) {
             // TODO perform some logging or show user feedback
             return null;
         }
         // try to retrieve the image from the media store first
         // this will only work for images selected from gallery
-        String[] projection = { MediaStore.Images.Media.DATA };
+        String[] projection = {MediaStore.Images.Media.DATA};
         Cursor cursor = getActivity().managedQuery(uri, projection, null, null, null);
-        if( cursor != null ){
+        if (cursor != null) {
             int column_index = cursor
                     .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
             cursor.moveToFirst();
@@ -201,16 +241,16 @@ public class TakePicture extends Fragment {
         return uri.getPath();
     }
 
-    public void OnRequestPermissions(){
+    public void OnRequestPermissions() {
         List<String> permissionsList = new ArrayList<String>();
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
             permissionsList.add(Manifest.permission.CAMERA);
-        if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             permissionsList.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-        if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             permissionsList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        if (permissionsList.size() > 0){
+        if (permissionsList.size() > 0) {
             ActivityCompat.requestPermissions(getActivity(), permissionsList.toArray(new String[permissionsList.size()]), REQUEST_CODE);
             return;
         }
@@ -243,15 +283,14 @@ public class TakePicture extends Fragment {
         }
     }
 
-    public static Bitmap displayImage(Bitmap bitmap){
+    public static Bitmap displayImage(Bitmap bitmap) {
         Bitmap bitmapScaled;
         int height = bitmap.getHeight();
         int width = bitmap.getWidth();
-        if(height >= 4096 || width >= 4096){
-            int scaledDownHeight = (int)(height * (1024.0 / width));
+        if (height >= 4096 || width >= 4096) {
+            int scaledDownHeight = (int) (height * (1024.0 / width));
             bitmapScaled = Bitmap.createScaledBitmap(bitmap, 1024, scaledDownHeight, true);
-        }
-        else
+        } else
             return bitmap;
         return bitmapScaled;
     }

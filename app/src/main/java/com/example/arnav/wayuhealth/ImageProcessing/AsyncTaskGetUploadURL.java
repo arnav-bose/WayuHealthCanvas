@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.appspot.wayuconnectdev.loginWC.LoginWC;
 import com.appspot.wayuconnectdev.loginWC.LoginWC.PatUploadURL;
 import com.example.arnav.wayuhealth.AppConstants;
+import com.example.arnav.wayuhealth.Dashboard;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -85,10 +86,15 @@ public class AsyncTaskGetUploadURL extends AsyncTask<Void, Void, String> {
             int success = jsonObject.getInt("success");
 
             if (success == 1) {
-                if (TakePicture.optionSelected.equals("Camera")) {
-                    imageUri = TakePicture.imageUriCamera;
-                } else {
-                    imageUri = TakePicture.imageUriGallery;
+                if(Dashboard.uriFinalImage == null){
+                    if (TakePicture.optionSelected.equals("Camera")) {
+                        imageUri = TakePicture.imageUriCamera;
+                    } else {
+                        imageUri = TakePicture.imageUriGallery;
+                    }
+                }
+                else{
+                    imageUri = Dashboard.uriFinalImage;
                 }
                 try {
                     //Start Multipart
